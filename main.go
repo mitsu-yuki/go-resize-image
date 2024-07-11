@@ -34,7 +34,34 @@ func init() {
 }
 
 func main() {
-	fmt.Printf("start resize image\n")
+	origImageList := getJpegFileList(".")
+	resizedImageList := getJpegFileList(resizeDir)
+	unresizedImageList := difference(origImageList, resizedImageList)
+
+	if len(unresizedImageList) != 0 {
+		fmt.Printf("start resize image\n")
+		for i, name := range(unresizedImageList) {
+			f, err := os.Open(name)
+			if err != nil {
+				panic(err.Error())
+			}
+			defer f.Close()
+
+			img, err := jpeg.Decode(f)
+			if err != nil {
+				panic(err.Error())
+			}
+
+			fmt.Printf("resize[%d/%d]: %s\n", i + 1, len(unresizedImageList), name)
+			resizeImg := ResizeImageKeepAspect(img)
+			err = SaveImage(filepath.Join(pwd, resizeDir, name), resizeImg)
+			if err != nil {
+				panic(err.Error())
+			}
+		}
+	}
+	fmt.Printf("resize completed\n")
+}
 
 func getJpegFileList(path string) []string {
 	files, err := os.ReadDir(path)

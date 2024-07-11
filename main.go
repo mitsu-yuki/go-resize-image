@@ -51,12 +51,18 @@ func getJpegFileList(path string) []string {
 	return fileList
 }
 
-		resizeImg := ResizeImageKeepAspect(img)
-		err = SaveImage(filepath.Join(pwd, resizeDir, name), resizeImg)
-		if err != nil {
-			panic(err.Error())
+func difference(a, b []string) []string {
+	mb := make(map[string]struct{}, len(b))
+	for _, x := range b {
+		mb[x] = struct{}{}
+	}
+	var diff []string
+	for _, x := range a {
+		if _, found := mb[x]; !found {
+			diff = append(diff, x)
 		}
 	}
+	return diff
 }
 
 func ResizeImageKeepAspect(img image.Image) image.Image {

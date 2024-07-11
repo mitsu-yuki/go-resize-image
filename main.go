@@ -6,6 +6,7 @@ import (
 	"image/jpeg"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"golang.org/x/image/draw"
 )
@@ -35,22 +36,20 @@ func init() {
 func main() {
 	fmt.Printf("start resize image\n")
 
-	fileList, err := filepath.Glob("*.jpg")
+func getJpegFileList(path string) []string {
+	files, err := os.ReadDir(path)
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Println(fileList)
-	for _, name := range(fileList) {
-		f, err := os.Open(name)
-		if err != nil {
-			panic(err.Error())
-		}
-		defer f.Close()
 
-		img, err := jpeg.Decode(f)
-		if err != nil {
-			panic(err.Error())
+	var fileList []string
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(strings.ToLower(file.Name()), "jpg") {
+			fileList = append(fileList, file.Name())
 		}
+	}
+	return fileList
+}
 
 		resizeImg := ResizeImageKeepAspect(img)
 		err = SaveImage(filepath.Join(pwd, resizeDir, name), resizeImg)
